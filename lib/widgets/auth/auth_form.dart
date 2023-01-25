@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:chat_app/config/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AuthForm extends StatefulWidget {
   final bool isLoading;
@@ -7,7 +11,6 @@ class AuthForm extends StatefulWidget {
     String password,
     String username,
     bool isLogin,
-    BuildContext ctx, //context for snackBar
   ) submitForm;
   const AuthForm(this.submitForm, this.isLoading, {Key? key}) : super(key: key);
 
@@ -17,27 +20,48 @@ class AuthForm extends StatefulWidget {
 
 class _AuthFormState extends State<AuthForm> {
   final _formKey = GlobalKey<FormState>();
-  var _isObscurePassword = true; // hidden password
-  var _isLogin = true;
-  var _userEmail = '';
-  var _userName = '';
-  var _userPassword = '';
+  bool _isObscurePassword = true; // hidden password
+  bool _showLogin = true;
+  String _userEmail = '';
+  String _userName = '';
+  String _userPassword = '';
+  final _picker = ImagePicker();
+  File? _pickedImage;
 
   void _submit() {
     final isValid = _formKey.currentState?.validate();
-    if (isValid == false) {
+    FocusScope.of(context).unfocus(); //close the soft keyboard after submit
+    if (_pickedImage == null && !_showLogin) {
+      ///Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(imageValidationText),
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      );
+      return;
+    }
+
+    if (isValid == false || isValid == null) {
       return; //returning if validation fails
     }
-    FocusScope.of(context).unfocus(); //close the soft keyboard after submit
+
     _formKey.currentState?.save();
-    //using values to send auth request
+
+    ///using values to send auth request
     widget.submitForm(
       _userEmail.trim(),
       _userPassword.trim(),
       _userName.trim(),
-      _isLogin,
-      context,
+      _showLogin,
     );
+  }
+
+  void _pickImage(ImageSource source) async {
+    final image = await _picker.pickImage(source: source);
+    setState(() {
+      _pickedImage = File(image!.path);
+    });
   }
 
   @override
@@ -53,17 +77,34 @@ class _AuthFormState extends State<AuthForm> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (!_showLogin)
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
+                      backgroundImage: _pickedImage == null
+                          ? null
+                          : FileImage(_pickedImage!),
+                    ),
+                  if (!_showLogin)
+                    TextButton.icon(
+                      onPressed: () {
+                        _pickImage(ImageSource.gallery);
+                      },
+                      icon: const Icon(Icons.image_rounded),
+                      label: const Text(addImageButtonText),
+                    ),
                   TextFormField(
-                    key: const ValueKey('email'),
+                    key: const ValueKey(emailKey),
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
-                      labelText: 'Email address',
+                      labelText: emailLabel,
                       prefixIcon: Icon(Icons.email_outlined),
                     ),
                     validator: (value) {
                       //checking for empty field and it must contain @ symbol
-                      if (value!.isEmpty || !value.contains("@")) {
-                        return 'Please provide a valid email address!';
+                      if (value!.isEmpty || !value.contains('@')) {
+                        return emailValidationText;
                       }
                       return null;
                     },
@@ -74,17 +115,17 @@ class _AuthFormState extends State<AuthForm> {
                     },
                   ),
 
-                  if (!_isLogin) // show username if in signup mode
+                  if (!_showLogin) // show username if in signup mode
                     TextFormField(
-                      key: const ValueKey('username'),
+                      key: const ValueKey(usernameKey),
                       decoration: const InputDecoration(
-                        labelText: 'Username',
+                        labelText: userNameLabel,
                         prefixIcon: Icon(Icons.person_outline_outlined),
                       ),
                       validator: (value) {
                         //checking for empty field and setting min length required
                         if (value!.isEmpty || value.length < 4) {
-                          return 'Username must be at least 4 characters.';
+                          return userNameValidationText;
                         }
                         return null;
                       },
@@ -96,10 +137,10 @@ class _AuthFormState extends State<AuthForm> {
                     ),
 
                   TextFormField(
-                    key: const ValueKey('password'),
+                    key: const ValueKey(passwordKey),
                     obscureText: _isObscurePassword,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: passwordLabel,
                       prefixIcon:
                           const Icon(Icons.private_connectivity_outlined),
                       suffixIcon: IconButton(
@@ -117,7 +158,7 @@ class _AuthFormState extends State<AuthForm> {
                     validator: (value) {
                       //checking for empty field and setting min length required
                       if (value!.isEmpty || value.length < 5) {
-                        return 'Password is too short!';
+                        return passwordValidationText;
                       }
                       return null;
                     },
@@ -141,7 +182,8 @@ class _AuthFormState extends State<AuthForm> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(5.0),
-                        child: Text(_isLogin ? 'LOGIN' : 'SIGNUP'),
+                        child: Text(
+                            _showLogin ? loginButtonText : signupButtonText),
                       ),
                     ),
 
@@ -149,12 +191,12 @@ class _AuthFormState extends State<AuthForm> {
                     TextButton(
                       onPressed: () {
                         setState(() {
-                          _isLogin = !_isLogin;
+                          _showLogin = !_showLogin;
                         });
                       },
-                      child: Text(_isLogin
-                          ? 'Create new account'
-                          : 'Already have an account?'),
+                      child: Text(
+                        _showLogin ? newAccountText : accountExistsText,
+                      ),
                     ),
                 ],
               ),

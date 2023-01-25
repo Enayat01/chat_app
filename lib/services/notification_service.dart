@@ -6,7 +6,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static void initialize() {
-    // initializationSettings  for Android
+    /// initializationSettings  for Android
     const InitializationSettings initializationSettings =
         InitializationSettings(
       android: AndroidInitializationSettings("@mipmap/ic_launcher"),

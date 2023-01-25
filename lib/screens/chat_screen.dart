@@ -1,7 +1,9 @@
-import 'package:chat_app/widgets/chat/new_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+
+import '../config/constants.dart';
+import '../widgets/chat/new_message.dart';
 import '../services/notification_service.dart';
 import '/widgets/chat/messages.dart';
 
@@ -13,81 +15,75 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  Future<void> setupInteractedMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen via _handleMessage method.
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    // Also handle any interaction when the app is in the background via a
+    // Stream listener
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    if (message.data['type'] == 'chat') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ChatScreen(),
+        ),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    final fbm = FirebaseMessaging.instance;
-    fbm.requestPermission();
-    FirebaseMessaging.onMessage.listen((message) {
-      print(message);
-      return;
-    });
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      print(message);
-      return;
-    });
-    fbm.subscribeToTopic('chat');
-
-    fbm.getInitialMessage().then(
-      (message) {
-        print(FirebaseMessaging.instance.getInitialMessage);
-        if (message != null) {
-          print("New Notification");
-        }
-      },
-    );
+    final fcm = FirebaseMessaging.instance;
+    fcm.requestPermission();
+    fcm.subscribeToTopic('chat');
 
     FirebaseMessaging.onMessage.listen(
-      (message) {
-        print(FirebaseMessaging.onMessage.listen);
+      (RemoteMessage message) {
+        debugPrint('Listen onMessage: ${FirebaseMessaging.onMessage.listen}');
+        debugPrint('Message data: ${message.data}');
         if (message.notification != null) {
-          print(message.notification!.title);
-          print(message.notification!.body);
-          print("message.data11 ${message.data}");
+          debugPrint(message.notification!.title);
+          debugPrint(message.notification!.body);
           NotificationService.createAndDisplayNotification(message);
         }
       },
     );
-
-    FirebaseMessaging.onMessageOpenedApp.listen(
-      (message) {
-        print(FirebaseMessaging.onMessageOpenedApp.listen);
-        if (message.notification != null) {
-          print(message.notification!.title);
-          print(message.notification!.body);
-          print("message.data:- ${message.data['_id']}");
-        }
-      },
-    );
+    setupInteractedMessage();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat App'),
+        title: const Text(appTitle),
         actions: [
-          DropdownButtonHideUnderline(
-            child: DropdownButton(
-              items: [
-                DropdownMenuItem(
-                  value: 'logout',
-                  child: Row(
-                    children: const [
-                      Icon(Icons.logout_rounded),
-                      Text('Logout'),
-                    ],
-                  ),
-                ),
-              ],
-              onChanged: (itemIdentifier) {
-                if (itemIdentifier == 'logout') {
-                  FirebaseAuth.instance.signOut();
-                }
-              },
-              icon: const Icon(Icons.more_vert_rounded),
-            ),
-          ),
+          PopupMenuButton(
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 0,
+                child: Text(logout),
+              ),
+            ],
+            icon: const Icon(Icons.more_vert_rounded),
+            onSelected: (value) {
+              if (value == 0) {
+                FirebaseAuth.instance.signOut();
+              }
+            },
+          )
         ],
       ),
       body: Column(
@@ -96,6 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Messages(),
           ),
           NewMessage(),
+          SizedBox(height: 10),
         ],
       ),
     );

@@ -10,8 +10,11 @@ import 'config/color_schemes.dart';
 import 'screens/auth_screen.dart';
 import 'screens/chat_screen.dart';
 
+@pragma('vm:entry-point')
 Future<void> backgroundHandler(RemoteMessage message) async {
-  print(message.notification!.title);
+  await Firebase.initializeApp();
+  debugPrint(message.notification!.title);
+  debugPrint("Handling a background message: ${message.messageId}");
 }
 
 FirebaseMessaging messaging = FirebaseMessaging.instance;

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../config/constants.dart';
 import '../widgets/auth/auth_form.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -22,7 +23,6 @@ class _AuthScreenState extends State<AuthScreen> {
     String password,
     String username,
     bool isLogin,
-    BuildContext ctx, //context for snackBar
   ) async {
     UserCredential userCredential;
     try {
@@ -30,11 +30,11 @@ class _AuthScreenState extends State<AuthScreen> {
         _isLoading = true;
       });
       if (isLogin) {
-        // Log user in with email and password
+        /// Log user in with email and password
         userCredential = await _auth.signInWithEmailAndPassword(
             email: email, password: password);
       } else {
-        // Sign user up with email, username and password
+        /// Sign user up with email, username and password
         userCredential = await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
         await FirebaseFirestore.instance
@@ -43,12 +43,13 @@ class _AuthScreenState extends State<AuthScreen> {
             .set({'username': username, 'email': email});
       }
     } on PlatformException catch (e) {
-      var message = 'An error occurred, please check your credentials!';
+      String message = signInErrorMsg;
       if (e.message != null) {
         message = e.message!;
       }
-      //Show error message
-      ScaffoldMessenger.of(ctx).showSnackBar(
+
+      ///Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
         ),
@@ -57,11 +58,11 @@ class _AuthScreenState extends State<AuthScreen> {
         _isLoading = false;
       });
     } catch (error) {
-      //Show error message
-      ScaffoldMessenger.of(ctx).showSnackBar(
+      ///Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$error'),
-          backgroundColor: Theme.of(ctx).errorColor,
+          content: Text(error.toString()),
+          backgroundColor: Theme.of(context).errorColor,
         ),
       );
       setState(() {
