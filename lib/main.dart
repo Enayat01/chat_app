@@ -1,4 +1,3 @@
-import 'package:chat_app/services/notification_service.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +5,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'services/notification_service.dart';
+import 'config/constants.dart';
 import 'config/color_schemes.dart';
+import 'screens/splash_screen.dart';
 import 'screens/auth_screen.dart';
 import 'screens/chat_screen.dart';
 
@@ -18,6 +20,7 @@ Future<void> backgroundHandler(RemoteMessage message) async {
 }
 
 FirebaseMessaging messaging = FirebaseMessaging.instance;
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -39,7 +42,7 @@ class MyApp extends StatelessWidget {
     return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Chat App',
+        title: appTitle,
         theme: ThemeData(
           colorScheme: lightColorScheme ?? _defaultLightColorScheme,
           useMaterial3: true,
@@ -50,6 +53,9 @@ class MyApp extends StatelessWidget {
         ),
         home: StreamBuilder(
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const SplashScreen();
+            }
             if (snapshot.hasData) {
               return const ChatScreen();
             }

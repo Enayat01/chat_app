@@ -1,6 +1,7 @@
 const appTitle = 'Chat Room';
 const logout = 'logout';
 const signInErrorMsg = 'An error occurred, please check your credentials!';
+const sendMessageLabel = 'Send Message';
 
 ///Auth form texts
 const emailLabel = 'Email address';

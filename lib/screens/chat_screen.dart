@@ -92,7 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Messages(),
           ),
           NewMessage(),
-          SizedBox(height: 10),
+          SizedBox(height: 20),
         ],
       ),
     );

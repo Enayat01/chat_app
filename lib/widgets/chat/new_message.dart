@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../config/constants.dart';
+
 class NewMessage extends StatefulWidget {
   const NewMessage({Key? key}) : super(key: key);
 
@@ -25,6 +27,7 @@ class _NewMessageState extends State<NewMessage> {
         'timeCreated': Timestamp.now(),
         'userId': user?.uid,
         'username': docSnapShot.data()?['username'],
+        'userImage': docSnapShot.data()?['image_url'],
       });
     }
     _controller.clear();
@@ -40,8 +43,12 @@ class _NewMessageState extends State<NewMessage> {
           Expanded(
             child: TextField(
               controller: _controller,
-              decoration: const InputDecoration(
-                labelText: 'Send Message',
+              decoration: InputDecoration(
+                labelText: sendMessageLabel,
+                suffix: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.attach_file),
+                ),
               ),
               onChanged: (value) {
                 setState(() {

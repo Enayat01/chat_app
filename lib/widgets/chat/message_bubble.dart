@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class MessageBubble extends StatelessWidget {
   final String message;
   final String userName;
+  final String? userImage;
   final bool isMe;
 
   const MessageBubble(
     this.message,
     this.userName,
+    this.userImage,
     this.isMe, {
     Key? key,
   }) : super(key: key);
@@ -17,6 +19,9 @@ class MessageBubble extends StatelessWidget {
     return Row(
       mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
+        CircleAvatar(
+          backgroundImage: userImage == null ? null : NetworkImage(userImage!),
+        ),
         Container(
           decoration: BoxDecoration(
             color: isMe

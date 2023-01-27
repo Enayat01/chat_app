@@ -10,8 +10,10 @@ class AuthForm extends StatefulWidget {
     String email,
     String password,
     String username,
+    File image,
     bool isLogin,
   ) submitForm;
+
   const AuthForm(this.submitForm, this.isLoading, {Key? key}) : super(key: key);
 
   @override
@@ -53,12 +55,17 @@ class _AuthFormState extends State<AuthForm> {
       _userEmail.trim(),
       _userPassword.trim(),
       _userName.trim(),
+      _pickedImage!,
       _showLogin,
     );
   }
 
   void _pickImage(ImageSource source) async {
-    final image = await _picker.pickImage(source: source);
+    final image = await _picker.pickImage(
+      source: source,
+      imageQuality: 50,
+      maxWidth: 150,
+    );
     setState(() {
       _pickedImage = File(image!.path);
     });
