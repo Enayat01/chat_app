@@ -21,3 +21,7 @@ const imageValidationText = 'Please pick an image.';
 const emailKey = 'email';
 const usernameKey = 'username';
 const passwordKey = 'password';
+
+//image selection texts
+const cameraSelection = 'Click from Camera';
+const gallerySelection = 'Select from Gallery';

@@ -35,14 +35,17 @@ class Messages extends StatelessWidget {
         //Showing data in a ListView on the screen
         return ListView.builder(
           reverse: true,
-          itemCount: chatDocs.length,
-          itemBuilder: (ctx, index) => MessageBubble(
-            chatDocs[index].data()['text'],
-            chatDocs[index].data()['username'],
-            chatDocs[index].data()['image_url'],
-            chatDocs[index].data()['userId'] == user?.uid,
-            key: ValueKey(chatDocs[index].id),
-          ),
+          itemCount: chatDocs.length + 1,
+          itemBuilder: (ctx, index) => (index != chatDocs.length)
+              ? MessageBubble(
+                  chatDocs[index].data()['text'],
+                  chatDocs[index].data()['username'],
+                  chatDocs[index]['userImage'],
+                  chatDocs[index].data()['userId'] == user?.uid,
+                  chatDocs[index]['type'],
+                  key: ValueKey(chatDocs[index].id),
+                )
+              : const SizedBox(height: 20),
         );
       },
     );

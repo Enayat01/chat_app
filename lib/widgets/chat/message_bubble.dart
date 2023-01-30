@@ -5,72 +5,111 @@ class MessageBubble extends StatelessWidget {
   final String userName;
   final String? userImage;
   final bool isMe;
+  final String? type;
 
   const MessageBubble(
     this.message,
     this.userName,
     this.userImage,
-    this.isMe, {
+    this.isMe,
+    this.type, {
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-      children: [
-        CircleAvatar(
-          backgroundImage: userImage == null ? null : NetworkImage(userImage!),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: isMe
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.tertiary,
-            borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(10),
-              topRight: const Radius.circular(10),
-              bottomLeft:
-                  isMe ? const Radius.circular(10) : const Radius.circular(0),
-              bottomRight:
-                  isMe ? const Radius.circular(0) : const Radius.circular(10),
-            ),
-          ),
-          width: MediaQuery.of(context).size.width * 0.35,
-          padding: const EdgeInsets.symmetric(
-            vertical: 5,
-            horizontal: 15,
-          ),
-          margin: const EdgeInsets.symmetric(
-            vertical: 5,
-            horizontal: 8,
-          ),
-          child: Column(
-            crossAxisAlignment:
-                isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+    return type == 'text'
+        ? Stack(
+            clipBehavior: Clip.none,
             children: [
-              Text(
-                userName,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: isMe
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSecondary,
-                ),
-                textAlign: isMe ? TextAlign.end : TextAlign.start,
+              Row(
+                mainAxisAlignment:
+                    isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: isMe
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.tertiary,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(10),
+                        topRight: const Radius.circular(10),
+                        bottomLeft: isMe
+                            ? const Radius.circular(10)
+                            : const Radius.circular(0),
+                        bottomRight: isMe
+                            ? const Radius.circular(0)
+                            : const Radius.circular(10),
+                      ),
+                    ),
+                    width: MediaQuery.of(context).size.width * 0.35,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 5,
+                      horizontal: 15,
+                    ),
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 15,
+                      horizontal: 8,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: isMe
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          userName,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isMe
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : Theme.of(context).colorScheme.onSecondary,
+                          ),
+                          textAlign: isMe ? TextAlign.end : TextAlign.start,
+                        ),
+                        Text(
+                          message,
+                          style: TextStyle(
+                            color: isMe
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : Theme.of(context).colorScheme.onSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                message,
-                style: TextStyle(
-                  color: isMe
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSecondary,
+              Positioned(
+                top: -10,
+                left: isMe ? null : 120,
+                right: isMe ? 120 : null,
+                child: CircleAvatar(
+                  backgroundImage:
+                      userImage == null ? null : NetworkImage(userImage!),
                 ),
               ),
             ],
-          ),
-        ),
-      ],
-    );
+          )
+        : Container(
+            alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(
+              vertical: 5,
+              horizontal: 15,
+            ),
+            margin: const EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 8,
+            ),
+            height: MediaQuery.of(context).size.height * 0.30,
+            width: MediaQuery.of(context).size.width * 0.40,
+            child: type != ''
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      message,
+                      fit: BoxFit.cover,
+                    ))
+                : const CircularProgressIndicator(),
+          );
   }
 }

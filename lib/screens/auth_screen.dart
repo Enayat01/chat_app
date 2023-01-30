@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -25,7 +23,7 @@ class _AuthScreenState extends State<AuthScreen> {
     String email,
     String password,
     String username,
-    File image,
+    dynamic image,
     bool isLogin,
   ) async {
     UserCredential userCredential;
@@ -48,7 +46,7 @@ class _AuthScreenState extends State<AuthScreen> {
             .child('${userCredential.user?.uid}.jpg');
 
         await imageRef.putFile(image);
-        final imageUrl = imageRef.getDownloadURL();
+        final imageUrl = await imageRef.getDownloadURL();
 
         await FirebaseFirestore.instance
             .collection('users')
@@ -56,7 +54,7 @@ class _AuthScreenState extends State<AuthScreen> {
             .set({
           'username': username,
           'email': email,
-          'image_url': imageUrl,
+          'userImage': imageUrl,
         });
       }
     } on PlatformException catch (e) {

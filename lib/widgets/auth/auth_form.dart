@@ -10,7 +10,7 @@ class AuthForm extends StatefulWidget {
     String email,
     String password,
     String username,
-    File image,
+    dynamic image,
     bool isLogin,
   ) submitForm;
 
@@ -29,6 +29,12 @@ class _AuthFormState extends State<AuthForm> {
   String _userPassword = '';
   final _picker = ImagePicker();
   File? _pickedImage;
+
+  @override
+  void dispose() {
+    _formKey.currentState?.dispose();
+    super.dispose();
+  }
 
   void _submit() {
     final isValid = _formKey.currentState?.validate();
@@ -55,7 +61,7 @@ class _AuthFormState extends State<AuthForm> {
       _userEmail.trim(),
       _userPassword.trim(),
       _userName.trim(),
-      _pickedImage!,
+      _pickedImage,
       _showLogin,
     );
   }
@@ -108,6 +114,8 @@ class _AuthFormState extends State<AuthForm> {
                       labelText: emailLabel,
                       prefixIcon: Icon(Icons.email_outlined),
                     ),
+                    textInputAction: TextInputAction.next,
+                    enableSuggestions: true,
                     validator: (value) {
                       //checking for empty field and it must contain @ symbol
                       if (value!.isEmpty || !value.contains('@')) {
@@ -129,6 +137,8 @@ class _AuthFormState extends State<AuthForm> {
                         labelText: userNameLabel,
                         prefixIcon: Icon(Icons.person_outline_outlined),
                       ),
+                      textInputAction: TextInputAction.next,
+                      textCapitalization: TextCapitalization.words,
                       validator: (value) {
                         //checking for empty field and setting min length required
                         if (value!.isEmpty || value.length < 4) {
